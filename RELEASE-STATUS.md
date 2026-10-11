@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-11
 **Repository:** `https://github.com/loopgridio/loopgrid-mastra`
-**Package name/version:** `@loopgrid/mastra@0.1.0`
+**Package name/version:** `loopgrid-mastra@0.1.0`
 **State:** Validated source package. **Not yet published to npm; no release tag until remaining gates are completed.**
 
 ## Why this integration is separate

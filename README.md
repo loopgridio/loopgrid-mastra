@@ -2,7 +2,7 @@
 
 **Decision-scoped policy enforcement and verifiable evidence for Mastra agents and workflows.**
 
-**Package:** `@loopgrid/mastra` · **Version:** `0.1.0` · **Status:** source validated locally; GitHub CI and npm publication pending.
+**Package:** `loopgrid-mastra` · **Version:** `0.1.0` · **Status:** source validated locally; GitHub CI and npm publication pending.
 
 Mastra runs the agent and invokes tools. **LoopGrid Core** evaluates the configured policy and stores signed, tamper-evident evidence. **Your application** supplies the real authority, authenticated reviewer and downstream outcome. This integration binds those responsibilities to **one consequential decision** rather than creating disconnected observations for each tool call.
 
@@ -47,14 +47,14 @@ npm run test:mastra
 npx --no-install tsc -p tsconfig.types.json
 ```
 
-The `@loopgrid/mastra` adapter has **no mandatory third-party runtime dependencies**. In the host app, provide the installed `createTool`, `createStep` and Zod. The tested SDK version above is pinned for repeatability; newer versions need a compatibility rerun before adoption.
+The `loopgrid-mastra` adapter has **no mandatory third-party runtime dependencies**. In the host app, provide the installed `createTool`, `createStep` and Zod. The tested SDK version above is pinned for repeatability; newer versions need a compatibility rerun before adoption.
 
 ## Minimal guarded-tool integration
 
 > **Prerequisites:** A disposable local LoopGrid Core, an existing workspace and a configured Core policy named `refund-policy` that permits the synthetic test. The sample below uses no real payment SDK.
 
 ```js
-import { LoopGridClient, startMastraDecision, createMastraGuardedTool } from '@loopgrid/mastra';
+import { LoopGridClient, startMastraDecision, createMastraGuardedTool } from 'loopgrid-mastra';
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 

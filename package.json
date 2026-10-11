@@ -1,5 +1,5 @@
 {
-  "name": "@loopgrid/mastra",
+  "name": "loopgrid-mastra",
   "version": "0.1.0",
   "description": "Native Mastra consequential-decision evidence integration for LoopGrid Core",
   "type": "module",

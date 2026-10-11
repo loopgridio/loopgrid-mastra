@@ -1,7 +1,7 @@
 # Release checklist — LoopGrid Mastra Integration v0.1.0
 
 **Repository:** `loopgridio/loopgrid-mastra`
-**Package:** `@loopgrid/mastra@0.1.0`
+**Package:** `loopgrid-mastra@0.1.0`
 **State:** Source validated; GitHub CI and npm publication pending.
 
 ## Integration contract — confirmed
@@ -25,7 +25,7 @@
 ## Required before npm release
 
 - [ ] GitHub `main` pushed and **all hosted CI jobs green**, including 6 OS/Node combinations plus pinned native SDK job.
-- [ ] Final `@loopgrid/mastra@0.1.0` tarball inspected and installed into a fresh consumer using the tagged commit.
+- [ ] Final `loopgrid-mastra@0.1.0` tarball inspected and installed into a fresh consumer using the tagged commit.
 - [ ] Transitive moderate `sprintf-js` advisory impact assessed and remediated or risk accepted explicitly; never force-downgrade tested Mastra SDK.
 - [ ] Deployment-specific review: actual reviewer authentication, Core credentials/TLS, real provider side-effect reconciliation and recovery.
 - [ ] Confirm ownership/access to the npm `@loopgrid` scope and review registry publication permissions.

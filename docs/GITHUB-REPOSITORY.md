@@ -6,7 +6,7 @@ Use the established LoopGrid integration naming convention without development-c
 **Initial commit:** `Initial release of LoopGrid Mastra integration v0.1.0`
 **Release version:** `0.1.0`
 **Release tag (after CI/security signoff):** `v0.1.0`
-**Package:** `@loopgrid/mastra`
+**Package:** `loopgrid-mastra`
 
 ## Suggested About section
 
