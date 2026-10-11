@@ -1,0 +1,106 @@
+name: LoopGrid Mastra npm Release
+
+# Only a NEW GitHub Release can initiate this workflow.
+# Adding this file does not republish the existing v0.1.0 release.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: loopgrid-mastra-npm-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Verify and publish npm package
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out exactly the released tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js 24 and npm registry
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Use npm CLI with Trusted Publishing support
+        run: npm install --global npm@11.21.0
+
+      - name: Verify released tag and package identity
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          EXPECTED_REPO: loopgridio/loopgrid-mastra
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          const tag = process.env.RELEASE_TAG;
+          if (process.env.GITHUB_REPOSITORY !== process.env.EXPECTED_REPO) {
+            throw new Error('Unexpected GitHub repository');
+          }
+          if (pkg.name !== 'loopgrid-mastra') {
+            throw new Error(`Unexpected npm package name: ${pkg.name}`);
+          }
+          if (!/^\d+\.\d+\.\d+$/.test(pkg.version) || tag !== `v${pkg.version}`) {
+            throw new Error(`Release tag ${tag} does not match package version ${pkg.version}`);
+          }
+          const actual = pkg.repository?.url ?? '';
+          if (!/^((git\+)?https:\/\/github\.com\/loopgridio\/loopgrid-mastra(\.git)?)$/.test(actual)) {
+            throw new Error('Unexpected repository URL');
+          }
+          console.log(`Validated ${pkg.name}@${pkg.version} for ${tag}`);
+          NODE
+          test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "refs/tags/$RELEASE_TAG")"
+          echo "PKG_VERSION=${RELEASE_TAG#v}" >> "$GITHUB_ENV"
+
+      - name: Check npm registry to avoid republishing an existing version
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm view loopgrid-mastra versions --json --registry=https://registry.npmjs.org/ > "$RUNNER_TEMP/npm-versions.json"
+          if node -e 'const fs=require("node:fs");const v=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));process.exit([v].flat().includes(process.argv[2]) ? 0 : 1)' "$RUNNER_TEMP/npm-versions.json" "$PKG_VERSION"; then
+            echo "Version $PKG_VERSION is already on npm; no publish needed."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version $PKG_VERSION has not been published."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test release source
+        if: steps.registry.outputs.publish == 'true'
+        run: npm test
+
+      - name: Verify real Mastra native factories and type declarations
+        if: steps.registry.outputs.publish == 'true'
+        run: |
+          npm install --no-save --ignore-scripts --no-audit @mastra/core@1.75.0 zod@4.6.6 typescript@5.9.3
+          node scripts/mastra-compatibility.mjs
+          npx --no-install tsc -p tsconfig.types.json
+
+      - name: Check npm tarball contents
+        if: steps.registry.outputs.publish == 'true'
+        run: npm pack --dry-run
+
+      # npm uses the GitHub OIDC token. No NPM_TOKEN secret is required.
+      # Configure the matching Trusted Publisher on npm immediately before
+      # the NEXT release, not now; new configurations expire if unvalidated
+      # by a successful publish within 2 days.
+      - name: Publish to npm using OIDC
+        if: steps.registry.outputs.publish == 'true'
+        run: npm publish --access public
