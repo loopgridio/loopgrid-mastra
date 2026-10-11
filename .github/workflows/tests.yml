@@ -1,0 +1,44 @@
+name: LoopGrid Mastra Integration CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  adapter:
+    name: Adapter / ${{ matrix.os }} / Node ${{ matrix.node }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: ['22.18.0', '24']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Adapter unit tests (no provider required)
+        run: npm test
+      - name: Package file inventory (no publish)
+        run: npm pack --dry-run --json
+      - name: Type declarations (tested TypeScript baseline)
+        run: |
+          npm install --no-save --ignore-scripts --no-audit typescript@5.9.3
+          npx --no-install tsc -p tsconfig.types.json
+  native-sdk:
+    name: Native Mastra SDK compatibility / Ubuntu / Node 24
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install tested native Mastra and Zod versions
+        run: npm install --no-save --ignore-scripts --no-audit @mastra/core@1.75.0 zod@4.6.6 typescript@5.9.3
+      - name: Native SDK guarded-tool and workflow smoke
+        run: node scripts/mastra-compatibility.mjs
+      - name: Type declarations with native SDK present
+        run: npx --no-install tsc -p tsconfig.types.json

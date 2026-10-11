@@ -1,0 +1,54 @@
+{
+  "name": "@loopgrid/mastra",
+  "version": "0.1.0",
+  "description": "Native Mastra consequential-decision evidence integration for LoopGrid Core",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage test/*.test.js",
+    "check": "npm test && npm pack --dry-run --json",
+    "test:mastra": "node scripts/mastra-compatibility.mjs",
+    "test:core": "node scripts/real-core-e2e.mjs"
+  },
+  "keywords": [
+    "loopgrid",
+    "mastra",
+    "ai-agents",
+    "policy",
+    "evidence",
+    "human-in-the-loop",
+    "audit",
+    "verification"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loopgridio/loopgrid-mastra.git"
+  },
+  "homepage": "https://loopgrid.io/integrations/",
+  "bugs": {
+    "url": "https://github.com/loopgridio/loopgrid-mastra/issues"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "INTEGRATION-CONTRACT.md",
+    "LICENSE",
+    "NOTICE.md",
+    "SECURITY.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
